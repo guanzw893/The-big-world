@@ -19,8 +19,13 @@ jobs: # 定义任务
         with:
           node-version: 20 # 指定版本
 
-      - name: Install dependencies # 安装依赖
-        run: npm install
+      - name: Install and Build
+        run: |
+          npm install
+          npm run build  # 生成 dist 文件夹
 
-      - name: Run build # 运行测试
-        run: npm run build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub 自动生成的 Token
+          publish_dir: ./dist # 要部署的目录
