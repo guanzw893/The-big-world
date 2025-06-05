@@ -3,20 +3,25 @@ name: CI Pipeline
 on: [push]
 
 jobs:
-  lint:
+  install:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm run lint # 失败则阻断所有
+      - run: npm install
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run lint
 
   build:
-    needs: lint # 必须 lint 成功
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - run: npm run build
 
   deploy:
-    needs: [lint, build] # 所有前置任务必须成功
+    needs: [install, lint, build]
     runs-on: ubuntu-latest
     steps:
       - uses: peaceiris/actions-gh-pages@v3
