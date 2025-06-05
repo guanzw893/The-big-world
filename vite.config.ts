@@ -6,6 +6,8 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  publicDir: 'The-big-world',
+  base: '/The-big-world',
   plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
