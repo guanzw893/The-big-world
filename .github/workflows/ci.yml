@@ -1,42 +1,25 @@
-name: CI Pipeline # 工作流名称
+name: CI Pipeline
 
-on: # 触发条件
-  push: # 代码推送时触发
-    branches: ['main'] # 仅 main 分支
-  pull_request: # PR 时触发
-    branches: ['main']
+on: [push]
 
-jobs: # 定义任务
+jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - run: npm run lint
+      - run: npm run lint # 失败则阻断所有
 
-  build: # 任务名称
-    runs-on: ubuntu-latest # 运行环境（GitHub 托管的 Runner）
+  build:
+    needs: lint # 必须 lint 成功
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run build
 
-    permissions: # 关键配置！
-      contents: write # 允许推送代码
-
-    steps: # 任务步骤
-      - name: Checkout code # 检出代码
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js # 安装 Node.js
-        uses: actions/setup-node@v4
+  deploy:
+    needs: [lint, build] # 所有前置任务必须成功
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peaceiris/actions-gh-pages@v3
         with:
-          node-version: 20 # 指定版本
-
-      - name: Install and Build
-        run: |
-          npm install
-          npm run build  # 生成 dist 文件夹
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub 自动生成的 Token
-          publish_dir: ./dist # 要部署的目录
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
